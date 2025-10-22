@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>emike's projects — Under Construction</title>
+  <meta name="description" content="emike's projects is getting a fresh coat of paint. Check back soon!" />
+  <!-- While you're building, keep search engines out -->
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23000'/%3E%3Cpath d='M22 70h56v8H22zM27 60h46v6H27zM34 26c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7zm-2 18h29a3 3 0 0 1 0 6H51l3 6h10a3 3 0 1 1 0 6H36l-6-12h-6a3 3 0 1 1 0-6h8z' fill='%23facc15'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: hsl(240 10% 6%);
+      --bg-2: hsl(240 8% 10%);
+      --fg: hsl(0 0% 98%);
+      --muted: hsl(240 5% 64%);
+      --accent: hsl(48 97% 62%); /* construction yellow */
+      --accent-2: hsl(32 100% 50%);
+      --card: hsl(240 10% 8% / 0.6);
+      --ring: hsl(48 97% 62% / 0.45);
+      --shadow: 0 10px 30px hsl(0 0% 0% / 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% 10%, hsl(250 60% 16% / .45), transparent 60%),
+                  radial-gradient(1000px 800px at 80% 0%, hsl(210 80% 14% / .45), transparent 60%),
+                  linear-gradient(180deg, var(--bg), var(--bg-2));
+      color: var(--fg);
+      display: grid;
+      place-items: center;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* subtle animated grid glow */
+    body::before {
+      content: "";
+      position: fixed; inset: -10vmax;
+      background: repeating-linear-gradient(90deg, hsl(0 0% 100% / .03) 0 1px, transparent 1px 100px),
+                  repeating-linear-gradient(0deg, hsl(0 0% 100% / .02) 0 1px, transparent 1px 100px);
+      filter: blur(0.5px);
+      transform: translateZ(0);
+      animation: drift 30s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes drift { to { transform: translate3d(50px, 50px, 0); } }
+
+    .wrap {
+      width: min(960px, 92vw);
+      position: relative;
+      padding: 32px 20px 56px;
+    }
+
+    .card {
+      position: relative;
+      padding: clamp(28px, 3.2vw, 48px);
+      border-radius: 22px;
+      background: linear-gradient(180deg, hsl(0 0% 100% / .06), hsl(0 0% 100% / .02));
+      backdrop-filter: blur(10px) saturate(120%);
+      box-shadow: var(--shadow);
+      border: 1px solid hsl(0 0% 100% / .12);
+      text-align: center;
+      overflow: clip;
+      isolation: isolate;
+    }
+
+    /* floating accent glow */
+    .card::after {
+      content: "";
+      position: absolute; inset: -30% -20% auto -20%; height: 60%;
+      background: radial-gradient(500px 200px at 50% 100%, var(--ring), transparent 60%);
+      filter: blur(20px);
+      z-index: -1;
+      animation: pulse 6s ease-in-out infinite;
+    }
+
+    @keyframes pulse { 50% { opacity: .5; transform: translateY(10px) scale(1.03); } }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: .55rem;
+      padding: .45rem .75rem; border-radius: 999px;
+      font-weight: 600; font-size: .9rem; letter-spacing: .02em;
+      color: #111;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 6px 28px hsl(45 100% 50% / .35);
+    }
+
+    .badge svg { width: 18px; height: 18px; }
+
+    h1 { font-size: clamp(1.8rem, 5vw, 3.25rem); margin: 14px 0 8px; line-height: 1.05; }
+    .tagline { color: var(--muted); font-size: clamp(1rem, 1.5vw, 1.15rem); margin: 0 0 22px; }
+
+    .actions { display: inline-flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+    .btn {
+      --b: hsl(0 0% 100% / .12);
+      padding: 12px 16px; border-radius: 14px; border: 1px solid var(--b);
+      background: hsl(0 0% 100% / .04);
+      color: var(--fg); text-decoration: none; font-weight: 600;
+      transition: transform .12s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+      display: inline-flex; gap: 10px; align-items: center;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: hsl(0 0% 100% / .26); box-shadow: 0 8px 22px hsl(0 0% 0%/.25); }
+    .btn:active { transform: translateY(0); }
+
+    .btn.primary { border-color: hsl(48 97% 62% / .5); background: linear-gradient(180deg, hsl(48 97% 62% / .2), hsl(48 97% 62% / .06)); color: #fff; }
+
+    .list {
+      margin: 30px auto 8px; padding: 0; list-style: none; display: grid; gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .list li {
+      padding: 12px 14px; border-radius: 14px; border: 1px dashed hsl(0 0% 100% / .18);
+      background: hsl(0 0% 100% / .03); color: hsl(0 0% 100% / .9);
+      font-size: .95rem; display: flex; align-items: center; gap: 10px; justify-content: center;
+    }
+    .list svg { width: 18px; height: 18px; opacity: .9; }
+
+    .note { color: var(--muted); margin-top: 18px; font-size: .95rem; }
+
+    footer { margin-top: 26px; color: var(--muted); font-size: .9rem; }
+
+    /* animated construction stripes footer */
+    .stripes {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 12px; opacity: .9;
+      background: repeating-linear-gradient(135deg, var(--accent) 0 16px, #111 16px 32px);
+      mask-image: linear-gradient(to top, black, transparent);
+      animation: slide 1.8s linear infinite;
+    }
+    @keyframes slide { to { background-position: 64px 0; } }
+
+    /* small screens */
+    @media (max-width: 660px) { .list { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main" style="position:absolute;left:-9999px;top:auto;">Skip to content</a>
+  <main id="main" class="wrap">
+    <section class="card" aria-labelledby="title">
+      <div class="badge" aria-label="Under construction badge">
+        <!-- hardhat icon -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v3H4v-3Z" stroke="#111" stroke-width="1.5"/><path d="M10 6v7m4-7v7" stroke="#111" stroke-width="1.5"/><rect x="2" y="16" width="20" height="4" rx="1.5" fill="#111"/></svg>
+        <span>Under construction</span>
+      </div>
+
+      <h1 id="title">emike's projects</h1>
+      <p class="tagline">A fresh redesign is on the way. Meanwhile, here's a clean landing space while I build.</p>
+      <div class="actions">
+        <a class="btn primary" href="mailto:emikeholland@icloud.com?subject=Hello%20from%20emikeprojects.com">Email me</a>
+      </div>
+
+
+      <p class="note">Want something here while I ship? Drop me a line — I can add a quick project list or link tree.</p>
+
+      <footer>
+        © <span id="y"></span> emike's projects • All rights reserved
+      </footer>
+
+      <div class="stripes" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <script>
+    // current year
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

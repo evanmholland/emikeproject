@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Study Helper Flashcards — emike's projects</title>
+  <meta name="description" content="Create customized flashcards from quick text input with flexible separators." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23000'/%3E%3Cpath d='M22 70h56v8H22zM27 60h46v6H27zM34 26c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7zm-2 18h29a3 3 0 0 1 0 6H51l3 6h10a3 3 0 1 1 0 6H36l-6-12h-6a3 3 0 1 1 0-6h8z' fill='%23facc15'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: hsl(232 24% 10%);
+      --bg-2: hsl(230 28% 8%);
+      --fg: hsl(0 0% 100%);
+      --fg-soft: hsl(222 20% 82%);
+      --border: hsl(0 0% 100% / 0.14);
+      --accent: hsl(46 98% 61%);
+      --accent-strong: hsl(32 100% 52%);
+      --shadow: 0 16px 45px hsl(230 46% 8% / 0.45);
+      --radius-large: 28px;
+      --radius: 16px;
+      --transition: 180ms ease;
+      --code-bg: hsl(232 36% 22%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      letter-spacing: -0.01em;
+      background:
+        radial-gradient(1200px 800px at 12% 10%, hsl(250 70% 22% / 0.35), transparent 60%),
+        radial-gradient(900px 700px at 88% 8%, hsl(200 78% 16% / 0.32), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+      color: var(--fg);
+      overflow-x: hidden;
+    }
+
+    .glow-grid::before {
+      content: "";
+      position: fixed;
+      inset: -10vmax;
+      background:
+        repeating-linear-gradient(0deg, hsl(0 0% 100% / 0.035) 0 1px, transparent 1px 90px),
+        repeating-linear-gradient(90deg, hsl(0 0% 100% / 0.025) 0 1px, transparent 1px 110px);
+      opacity: 0.6;
+      pointer-events: none;
+      animation: drift 32s linear infinite;
+      transform: translateZ(0);
+      filter: blur(0.4px);
+    }
+
+    @keyframes drift {
+      to { transform: translate3d(80px, 60px, 0); }
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    header {
+      width: min(1100px, 94vw);
+      margin: 0 auto;
+      padding: 36px 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo {
+      font-size: clamp(1.25rem, 1.8vw, 1.6rem);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.03em;
+    }
+
+    .logo span {
+      padding: 10px 14px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: hsl(230 20% 12%);
+      box-shadow: 0 12px 30px hsl(40 100% 57% / 0.32);
+    }
+
+    .home-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      padding: 10px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: hsl(0 0% 100% / 0.05);
+      color: var(--fg);
+      font-weight: 600;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: hsl(0 0% 100% / 0.3);
+      box-shadow: 0 12px 28px hsl(230 42% 10% / 0.3);
+      background: hsl(0 0% 100% / 0.08);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: hsl(230 22% 12%);
+      border-color: transparent;
+      box-shadow: 0 16px 38px hsl(35 100% 56% / 0.45);
+    }
+
+    main {
+      width: min(1100px, 94vw);
+      margin: 0 auto 120px;
+      display: grid;
+      gap: 48px;
+    }
+
+    .hero {
+      position: relative;
+      padding: clamp(32px, 5vw, 64px);
+      border-radius: var(--radius-large);
+      background: linear-gradient(180deg, hsl(234 54% 22% / 0.82), hsl(232 44% 16% / 0.92));
+      border: 1px solid hsl(0 0% 100% / 0.18);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 15% -30% -35%;
+      background: radial-gradient(500px 180px at 60% 30%, hsl(45 98% 61% / 0.45), transparent 70%);
+      filter: blur(12px);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      margin: 0 0 18px;
+      font-size: clamp(2.4rem, 5.2vw, 3.6rem);
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--fg-soft);
+      font-size: clamp(1.05rem, 1.6vw, 1.16rem);
+      max-width: 640px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 32px;
+    }
+
+    .panel {
+      background: hsl(233 46% 14% / 0.8);
+      border-radius: var(--radius);
+      padding: 22px;
+      border: 1px solid hsl(0 0% 100% / 0.1);
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: hsl(40 100% 80%);
+    }
+
+    textarea, input[type="text"] {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid hsl(0 0% 100% / 0.12);
+      background: hsl(235 40% 20% / 0.72);
+      color: var(--fg);
+      font-family: "Inter", system-ui, sans-serif;
+      font-size: 0.95rem;
+      resize: vertical;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    textarea:focus,
+    input:focus {
+      outline: none;
+      border-color: hsl(40 100% 65%);
+      box-shadow: 0 0 0 2px hsl(40 100% 65% / 0.25);
+    }
+
+    textarea {
+      min-height: 180px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      background: var(--code-bg);
+    }
+
+    fieldset {
+      border: 1px solid hsl(0 0% 100% / 0.12);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: hsl(233 40% 20% / 0.4);
+    }
+
+    legend {
+      padding: 0 6px;
+      font-weight: 600;
+      color: var(--fg);
+    }
+
+    .radio-group {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .radio-option {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-weight: 500;
+    }
+
+    .radio-option input[type="radio"] {
+      margin-top: 4px;
+      accent-color: var(--accent);
+    }
+
+    .separator-inputs {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      background: hsl(233 42% 18% / 0.6);
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: var(--fg-soft);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .actions button {
+      border: none;
+    }
+
+    .actions .ghost {
+      border: 1px solid hsl(0 0% 100% / 0.18);
+      background: transparent;
+      color: var(--fg);
+    }
+
+    .actions .ghost:hover {
+      background: hsl(0 0% 100% / 0.08);
+    }
+
+    .deck-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .deck-status {
+      font-size: 0.95rem;
+      color: var(--fg-soft);
+    }
+
+    .flashcard {
+      position: relative;
+      padding: clamp(26px, 4vw, 40px);
+      border-radius: 22px;
+      background: linear-gradient(180deg, hsl(231 40% 22% / 0.9), hsl(232 36% 18% / 0.95));
+      border: 1px solid hsl(0 0% 100% / 0.12);
+      box-shadow: 0 18px 36px hsl(233 54% 8% / 0.42);
+      min-height: 220px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      gap: 18px;
+      cursor: pointer;
+      transition: transform var(--transition), border-color var(--transition);
+    }
+
+    .flashcard:hover {
+      transform: translateY(-2px);
+      border-color: hsl(45 98% 62% / 0.5);
+    }
+
+    .flashcard .label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: hsl(45 98% 72%);
+    }
+
+    .flashcard .content {
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .flashcard .definition {
+      color: var(--fg-soft);
+      font-weight: 500;
+      font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+    }
+
+    .empty-state {
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px dashed hsl(0 0% 100% / 0.2);
+      background: hsl(233 38% 20% / 0.5);
+      color: var(--fg-soft);
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .card-list {
+      margin-top: 18px;
+      border-radius: 16px;
+      border: 1px solid hsl(0 0% 100% / 0.12);
+      background: hsl(232 36% 18% / 0.6);
+      padding: 16px 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .card-list dt {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .card-list dd {
+      margin: 4px 0 0;
+      color: var(--fg-soft);
+    }
+
+    footer {
+      width: min(1100px, 94vw);
+      margin: 0 auto 48px;
+      padding: 18px 0 0;
+      border-top: 1px solid hsl(0 0% 100% / 0.1);
+      color: hsl(0 0% 90% / 0.65);
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    footer a {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      header { flex-direction: column; align-items: flex-start; }
+      .home-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+      .hero { padding: 28px; }
+      .actions, .deck-controls { flex-direction: column; align-items: stretch; }
+      .actions .btn, .deck-controls .btn { width: 100%; justify-content: center; }
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body class="glow-grid">
+  <a class="visually-hidden" href="#flashcard-builder">Skip to flashcard builder</a>
+  <header>
+    <a class="logo" href="study-helper.html">
+      <span>emike</span>
+      <div>study helper</div>
+    </a>
+    <nav class="home-actions" aria-label="Secondary actions">
+      <a class="btn" href="study-helper.html">← Study helper home</a>
+      <a class="btn" href="index.html">Main app hub</a>
+      <a class="btn primary" href="mailto:emikeholland@icloud.com">Email</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Flashcards Studio</h1>
+      <p>Drop in your terms and definitions, choose how they’re separated, and flip through focused cards without touching a spreadsheet.</p>
+    </section>
+
+    <section id="flashcard-builder" class="layout" aria-labelledby="builder-heading">
+      <div class="panel" aria-labelledby="input-heading">
+        <h2 id="input-heading">1. Paste your source text</h2>
+        <label for="dataset-input">
+          Terms and definitions
+          <textarea id="dataset-input" spellcheck="false" placeholder="Photosynthesis - Process plants use to convert sunlight;Cellular respiration - Releases energy from glucose"></textarea>
+        </label>
+
+        <fieldset>
+          <legend>Separators</legend>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="separator-mode" value="default" checked />
+              Use default: term separator “-” and card separator “;”
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="separator-mode" value="custom" />
+              Choose my own separators
+            </label>
+          </div>
+          <div class="separator-inputs" id="custom-separators" hidden>
+            <label for="term-separator">
+              Character between term and definition
+              <input id="term-separator" type="text" maxlength="1" placeholder="e.g. :" />
+            </label>
+            <label for="card-separator">
+              Character between cards
+              <input id="card-separator" type="text" maxlength="1" placeholder="e.g. |" />
+            </label>
+            <p class="hint">Only punctuation or symbols allowed. Letters A–Z (upper or lower) and numbers 0–9 are blocked.</p>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" class="btn primary" id="generate-deck">Generate deck</button>
+          <button type="button" class="btn ghost" id="load-example">Load example</button>
+          <button type="button" class="btn ghost" id="reset-all">Reset</button>
+        </div>
+      </div>
+
+      <div class="panel" aria-labelledby="deck-heading">
+        <h2 id="deck-heading">2. Work through your cards</h2>
+        <div id="deck-container">
+          <div class="empty-state" id="empty-state">Generate a deck to start flipping cards.</div>
+        </div>
+        <div class="deck-controls" id="deck-controls" hidden>
+          <button type="button" class="btn ghost" id="prev-card">Previous</button>
+          <button type="button" class="btn primary" id="flip-card">Flip</button>
+          <button type="button" class="btn ghost" id="next-card">Next</button>
+          <button type="button" class="btn ghost" id="shuffle-cards">Shuffle deck</button>
+          <button type="button" class="btn ghost" id="toggle-list">Show list</button>
+          <span class="deck-status" id="deck-status" aria-live="polite"></span>
+        </div>
+        <dl class="card-list" id="card-list" hidden aria-live="polite"></dl>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>© <span id="year"></span> emike — Flashcards on demand.</div>
+    <a href="mailto:emikeholland@icloud.com">Share feedback</a>
+  </footer>
+
+  <script>
+    const datasetInput = document.getElementById('dataset-input');
+    const separatorRadios = document.querySelectorAll('input[name="separator-mode"]');
+    const customSeparatorBox = document.getElementById('custom-separators');
+    const termSeparatorInput = document.getElementById('term-separator');
+    const cardSeparatorInput = document.getElementById('card-separator');
+    const generateBtn = document.getElementById('generate-deck');
+    const resetBtn = document.getElementById('reset-all');
+    const loadExampleBtn = document.getElementById('load-example');
+
+    const deckContainer = document.getElementById('deck-container');
+    const emptyState = document.getElementById('empty-state');
+    const deckControls = document.getElementById('deck-controls');
+    const prevBtn = document.getElementById('prev-card');
+    const flipBtn = document.getElementById('flip-card');
+    const nextBtn = document.getElementById('next-card');
+    const shuffleBtn = document.getElementById('shuffle-cards');
+    const toggleListBtn = document.getElementById('toggle-list');
+    const deckStatus = document.getElementById('deck-status');
+    const cardList = document.getElementById('card-list');
+
+    const yearEl = document.getElementById('year');
+    yearEl.textContent = new Date().getFullYear();
+
+    const DEFAULT_TERM_SEPARATOR = '-';
+    const DEFAULT_CARD_SEPARATOR = ';';
+
+    const exampleDeck = [
+      ['Photosynthesis', 'Process plants use to convert sunlight into chemical energy'],
+      ['Cellular respiration', 'Releases energy by breaking down glucose in the presence of oxygen'],
+      ['Homeostasis', 'Ability of an organism to maintain internal balance despite external changes'],
+      ['Mitosis', 'Cell division that produces two identical daughter cells'],
+      ['Osmosis', 'Diffusion of water through a selectively permeable membrane']
+    ];
+
+    const exampleText = exampleDeck
+      .map(([term, def]) => `${term} ${DEFAULT_TERM_SEPARATOR} ${def}`)
+      .join(`${DEFAULT_CARD_SEPARATOR} `);
+
+    let deck = [];
+    let currentIndex = 0;
+    let showingDefinition = false;
+    let listVisible = false;
+
+    separatorRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        const useCustom = radio.value === 'custom' && radio.checked;
+        customSeparatorBox.hidden = !useCustom;
+        if (!useCustom) {
+          termSeparatorInput.value = '';
+          cardSeparatorInput.value = '';
+        }
+      });
+    });
+
+    loadExampleBtn.addEventListener('click', () => {
+      datasetInput.value = exampleText;
+      datasetInput.focus();
+    });
+
+    generateBtn.addEventListener('click', () => {
+      const rawText = datasetInput.value.trim();
+      if (!rawText) {
+        alert('Paste some text to build flashcards.');
+        return;
+      }
+
+      const { termSeparator, cardSeparator } = resolveSeparators();
+      if (!termSeparator || !cardSeparator) {
+        return;
+      }
+
+      const parsed = parseDeck(rawText, termSeparator, cardSeparator);
+      if (!parsed.length) {
+        alert('No valid flashcards found. Make sure each card includes the separator between term and definition.');
+        return;
+      }
+
+      deck = parsed;
+      currentIndex = 0;
+      showingDefinition = false;
+      listVisible = false;
+      cardList.hidden = true;
+      toggleListBtn.textContent = 'Show list';
+
+      renderDeck();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      datasetInput.value = '';
+      deck = [];
+      currentIndex = 0;
+      showingDefinition = false;
+      listVisible = false;
+      cardList.hidden = true;
+      toggleListBtn.textContent = 'Show list';
+      deckControls.hidden = true;
+      deckContainer.innerHTML = '';
+      deckContainer.appendChild(emptyState);
+      emptyState.hidden = false;
+      datasetInput.focus();
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (!deck.length) return;
+      currentIndex = (currentIndex - 1 + deck.length) % deck.length;
+      showingDefinition = false;
+      renderDeck();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (!deck.length) return;
+      currentIndex = (currentIndex + 1) % deck.length;
+      showingDefinition = false;
+      renderDeck();
+    });
+
+    flipBtn.addEventListener('click', () => {
+      if (!deck.length) return;
+      showingDefinition = !showingDefinition;
+      renderDeck(false);
+    });
+
+    shuffleBtn.addEventListener('click', () => {
+      if (!deck.length) return;
+      deck = shuffle(deck);
+      currentIndex = 0;
+      showingDefinition = false;
+      renderDeck();
+    });
+
+    toggleListBtn.addEventListener('click', () => {
+      if (!deck.length) return;
+      listVisible = !listVisible;
+      cardList.hidden = !listVisible;
+      toggleListBtn.textContent = listVisible ? 'Hide list' : 'Show list';
+    });
+
+    function resolveSeparators() {
+      const selected = document.querySelector('input[name="separator-mode"]:checked');
+      if (!selected) {
+        alert('Choose a separator mode.');
+        return { termSeparator: null, cardSeparator: null };
+      }
+
+      if (selected.value === 'default') {
+        return {
+          termSeparator: DEFAULT_TERM_SEPARATOR,
+          cardSeparator: DEFAULT_CARD_SEPARATOR
+        };
+      }
+
+      const termSep = termSeparatorInput.value;
+      const cardSep = cardSeparatorInput.value;
+
+      if (!isValidSeparator(termSep)) {
+        alert('Choose a valid term separator: single symbol, no letters or digits.');
+        return { termSeparator: null, cardSeparator: null };
+      }
+
+      if (!isValidSeparator(cardSep)) {
+        alert('Choose a valid card separator: single symbol, no letters or digits.');
+        return { termSeparator: null, cardSeparator: null };
+      }
+
+      if (termSep === cardSep) {
+        alert('Term and card separators must be different so the deck can be parsed.');
+        return { termSeparator: null, cardSeparator: null };
+      }
+
+      return {
+        termSeparator: termSep,
+        cardSeparator: cardSep
+      };
+    }
+
+    function isValidSeparator(char) {
+      if (!char || char.length !== 1) return false;
+      return !/[0-9a-zA-Z]/.test(char);
+    }
+
+    function parseDeck(rawText, termSeparator, cardSeparator) {
+      const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const parts = rawText
+        .split(new RegExp(`\\s*${escapeRegExp(cardSeparator)}\\s*`))
+        .map(part => part.trim())
+        .filter(Boolean);
+
+      return parts
+        .map(item => {
+          const separatorIndex = item.indexOf(termSeparator);
+          if (separatorIndex === -1) return null;
+          const term = item.slice(0, separatorIndex).trim();
+          const definition = item.slice(separatorIndex + termSeparator.length).trim();
+          if (!term || !definition) return null;
+          return [term, definition];
+        })
+        .filter(Boolean);
+    }
+
+    function renderDeck(announce = true) {
+      deckContainer.innerHTML = '';
+
+      if (!deck.length) {
+        deckContainer.appendChild(emptyState);
+        emptyState.hidden = false;
+        deckControls.hidden = true;
+        deckStatus.textContent = '';
+        cardList.innerHTML = '';
+        return;
+      }
+
+      emptyState.hidden = true;
+
+      const [term, definition] = deck[currentIndex];
+      const flashcard = document.createElement('div');
+      flashcard.className = 'flashcard';
+      flashcard.setAttribute('role', 'button');
+      flashcard.setAttribute('tabindex', '0');
+      flashcard.setAttribute('aria-pressed', showingDefinition ? 'true' : 'false');
+
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = showingDefinition ? 'definition' : 'term';
+
+      const content = document.createElement('div');
+      content.className = showingDefinition ? 'definition' : 'content';
+      content.textContent = showingDefinition ? definition : term;
+
+      const hint = document.createElement('div');
+      hint.className = 'hint';
+      hint.textContent = 'Click or press Enter/Space to flip';
+
+      flashcard.append(label, content, hint);
+      deckContainer.appendChild(flashcard);
+
+      deckControls.hidden = false;
+      deckStatus.textContent = `Card ${currentIndex + 1} of ${deck.length}`;
+
+      buildCardList();
+
+      const flipHandler = () => {
+        showingDefinition = !showingDefinition;
+        renderDeck(false);
+      };
+
+      flashcard.addEventListener('click', flipHandler);
+      flashcard.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          flipHandler();
+        }
+      });
+
+      if (announce) {
+        flashcard.focus();
+      }
+    }
+
+    function buildCardList() {
+      cardList.innerHTML = '';
+      deck.forEach(([term, definition], index) => {
+        const termEl = document.createElement('dt');
+        termEl.textContent = `${index + 1}. ${term}`;
+        const defEl = document.createElement('dd');
+        defEl.textContent = definition;
+        cardList.append(termEl, defEl);
+      });
+    }
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+  </script>
+</body>
+</html>

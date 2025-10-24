@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Study Helper AP Hub — emike's projects</title>
+  <meta name="description" content="Browse AP course outlines by unit, explore lecture notes, and plan targeted practice sessions." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23000'/%3E%3Cpath d='M22 70h56v8H22zM27 60h46v6H27zM34 26c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7zm-2 18h29a3 3 0 0 1 0 6H51l3 6h10a3 3 0 1 1 0 6H36l-6-12h-6a3 3 0 1 1 0-6h8z' fill='%23facc15'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: hsl(232 24% 10%);
+      --bg-2: hsl(230 28% 8%);
+      --fg: hsl(0 0% 100%);
+      --fg-soft: hsl(222 20% 82%);
+      --border: hsl(0 0% 100% / 0.16);
+      --accent: hsl(46 98% 61%);
+      --accent-strong: hsl(32 100% 52%);
+      --card: hsl(233 36% 18% / 0.8);
+      --shadow: 0 16px 45px hsl(230 46% 8% / 0.45);
+      --radius-large: 28px;
+      --radius: 18px;
+      --transition: 200ms ease;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      letter-spacing: -0.01em;
+      background:
+        radial-gradient(1200px 800px at 12% 10%, hsl(250 70% 22% / 0.32), transparent 60%),
+        radial-gradient(900px 700px at 88% 8%, hsl(200 78% 16% / 0.28), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+      color: var(--fg);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    header {
+      width: min(1100px, 94vw);
+      margin: 0 auto;
+      padding: 36px 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo {
+      font-size: clamp(1.25rem, 1.8vw, 1.6rem);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.03em;
+    }
+
+    .logo span {
+      padding: 10px 14px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: hsl(230 20% 12%);
+      box-shadow: 0 12px 30px hsl(40 100% 57% / 0.32);
+    }
+
+    .home-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      padding: 10px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: hsl(0 0% 100% / 0.05);
+      color: var(--fg);
+      font-weight: 600;
+      transition: transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: hsl(0 0% 100% / 0.28);
+      background: hsl(0 0% 100% / 0.08);
+      box-shadow: 0 12px 28px hsl(230 42% 10% / 0.32);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: hsl(230 22% 12%);
+      border-color: transparent;
+      box-shadow: 0 16px 38px hsl(35 100% 56% / 0.45);
+    }
+
+    main {
+      width: min(1100px, 94vw);
+      margin: 0 auto 120px;
+      display: grid;
+      gap: 48px;
+    }
+
+    .hero {
+      position: relative;
+      padding: clamp(32px, 5vw, 64px);
+      border-radius: var(--radius-large);
+      background: linear-gradient(180deg, hsl(234 54% 22% / 0.85), hsl(232 44% 16% / 0.92));
+      border: 1px solid hsl(0 0% 100% / 0.18);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 15% -30% -35%;
+      background: radial-gradient(500px 180px at 60% 30%, hsl(45 98% 61% / 0.45), transparent 70%);
+      filter: blur(12px);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      margin: 0 0 18px;
+      font-size: clamp(2.4rem, 5.2vw, 3.6rem);
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--fg-soft);
+      font-size: clamp(1.05rem, 1.6vw, 1.18rem);
+      max-width: 640px;
+    }
+
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 22px;
+    }
+
+    .course-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px;
+      border-radius: var(--radius);
+      border: 1px solid hsl(0 0% 100% / 0.16);
+      background: var(--card);
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+      cursor: pointer;
+    }
+
+    .course-card:hover,
+    .course-card.active {
+      transform: translateY(-4px);
+      border-color: hsl(45 98% 62% / 0.55);
+      box-shadow: 0 18px 32px hsl(232 50% 12% / 0.45);
+    }
+
+    .course-card h2 {
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .course-card p {
+      margin: 0;
+      color: var(--fg-soft);
+      font-size: 0.95rem;
+    }
+
+    .course-detail {
+      display: grid;
+      gap: 24px;
+      padding: clamp(30px, 4vw, 42px);
+      border-radius: var(--radius-large);
+      background: linear-gradient(150deg, hsl(233 36% 18% / 0.92), hsl(233 32% 14% / 0.92));
+      border: 1px solid hsl(0 0% 100% / 0.16);
+      box-shadow: var(--shadow);
+    }
+
+    .detail-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detail-header h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 2.3rem);
+      letter-spacing: -0.03em;
+    }
+
+    .detail-header p {
+      margin: 0;
+      color: var(--fg-soft);
+      max-width: 620px;
+    }
+
+    .detail-sections {
+      display: grid;
+      gap: 18px;
+    }
+
+    .section-card {
+      padding: 20px 22px;
+      border-radius: var(--radius);
+      border: 1px solid hsl(0 0% 100% / 0.14);
+      background: hsl(234 36% 16% / 0.85);
+      display: grid;
+      gap: 16px;
+    }
+
+    .section-card header {
+      padding: 0;
+      width: auto;
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .section-card h3 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .section-card p {
+      margin: 0;
+      color: var(--fg-soft);
+      font-size: 0.95rem;
+    }
+
+    details {
+      border-radius: 14px;
+      border: 1px solid hsl(0 0% 100% / 0.12);
+      background: hsl(233 36% 18% / 0.6);
+      padding: 14px 18px;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      outline: none;
+    }
+
+    details summary::marker {
+      color: var(--accent);
+    }
+
+    details[open] {
+      border-color: hsl(45 98% 62% / 0.45);
+      background: hsl(233 32% 20% / 0.7);
+    }
+
+    .lecture-list {
+      margin: 12px 0 0;
+      display: grid;
+      gap: 8px;
+      color: var(--fg-soft);
+      font-size: 0.92rem;
+    }
+
+    .practice-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .practice-card {
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid hsl(0 0% 100% / 0.14);
+      background: hsl(233 38% 18% / 0.7);
+      display: grid;
+      gap: 10px;
+    }
+
+    .practice-card strong {
+      font-size: 1.05rem;
+      letter-spacing: -0.01em;
+    }
+
+    .practice-card p {
+      margin: 0;
+      color: var(--fg-soft);
+      font-size: 0.9rem;
+    }
+
+    .practice-card button {
+      justify-self: flex-start;
+      border: none;
+    }
+
+    .placeholder-note {
+      font-size: 0.9rem;
+      color: var(--fg-soft);
+      background: hsl(233 36% 18% / 0.65);
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px dashed hsl(45 98% 62% / 0.4);
+    }
+
+    footer {
+      width: min(1100px, 94vw);
+      margin: 0 auto 48px;
+      padding: 18px 0 0;
+      border-top: 1px solid hsl(0 0% 100% / 0.1);
+      color: hsl(0 0% 90% / 0.65);
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    footer a {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    @media (max-width: 680px) {
+      header { flex-direction: column; align-items: flex-start; }
+      .home-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+      .hero { padding: 28px; }
+      .course-grid { grid-template-columns: 1fr; }
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <a class="visually-hidden" href="#course-list">Skip to course list</a>
+  <header>
+    <a class="logo" href="study-helper.html">
+      <span>emike</span>
+      <div>study helper</div>
+    </a>
+    <nav class="home-actions" aria-label="Secondary actions">
+      <a class="btn" href="study-helper.html">← Study helper home</a>
+      <a class="btn" href="index.html">Main app hub</a>
+      <a class="btn primary" href="mailto:emikeholland@icloud.com">Email</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">AP Hub</h1>
+      <p>Select a course to view structured unit notes from the College Board CED outline and launch practice sessions that match the way the exam tests you.</p>
+    </section>
+
+    <section id="course-list" aria-labelledby="course-list-title">
+      <h2 id="course-list-title" class="visually-hidden">Available AP courses</h2>
+      <div class="course-grid" id="course-grid"></div>
+    </section>
+
+    <section id="course-detail" class="course-detail" hidden aria-live="polite">
+      <div class="detail-header">
+        <div>
+          <h2 id="course-name"></h2>
+          <p id="course-description"></p>
+        </div>
+        <div class="home-actions">
+          <button type="button" class="btn" id="back-to-courses">Back to courses</button>
+        </div>
+      </div>
+
+      <div class="detail-sections">
+        <article class="section-card" aria-labelledby="notes-title">
+          <header>
+            <h3 id="notes-title">Notes by unit</h3>
+            <span class="placeholder-note">Full notes coming soon — explore the outline and add your own summaries.</span>
+          </header>
+          <div id="notes-content"></div>
+        </article>
+
+        <article class="section-card" aria-labelledby="practice-title">
+          <header>
+            <h3 id="practice-title">Practice options</h3>
+          </header>
+          <p>Choose a focus area to build a quiz in the Practice Tests tool. We’ll prefill the topic context so you can paste question sets quickly.</p>
+          <div class="practice-grid" id="practice-options"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>© <span id="year"></span> emike — Plan, note, practice.</div>
+    <a href="mailto:emikeholland@icloud.com">Share feedback</a>
+  </footer>
+
+  <script>
+    const courses = [
+      {
+        id: 'apush',
+        name: 'AP U.S. History',
+        description: 'Trace developments from pre-Columbian America to the present with key turning points for analysis-based writing.',
+        units: [
+          { title: 'Unit 1: Period 1 (1491–1607)', lectures: ['1.1 Native American societies','1.2 European exploration motives','1.3 The Columbian Exchange','1.4 Spanish colonization & resistance'] },
+          { title: 'Unit 2: Period 2 (1607–1754)', lectures: ['2.1 Chesapeake & Southern colonies','2.2 New England colonies','2.3 Middle colonies & diversity','2.4 Great Awakening & Enlightenment'] },
+          { title: 'Unit 3: Period 3 (1754–1800)', lectures: ['3.1 French & Indian War','3.2 American Revolution causes','3.3 Building a republic','3.4 Federalist era politics'] },
+          { title: 'Unit 4: Period 4 (1800–1848)', lectures: ['4.1 Jeffersonian democracy','4.2 Market revolution','4.3 Reform movements','4.4 Expansion & sectionalism'] },
+          { title: 'Unit 5: Period 5 (1844–1877)', lectures: ['5.1 Manifest Destiny','5.2 Civil War origins','5.3 Civil War strategies','5.4 Reconstruction plans'] },
+          { title: 'Unit 6: Period 6 (1865–1898)', lectures: ['6.1 Industrial capitalism','6.2 Labor & unions','6.3 The West & Native policy','6.4 Gilded Age politics'] },
+          { title: 'Unit 7: Period 7 (1890–1945)', lectures: ['7.1 Progressivism','7.2 U.S. in World War I','7.3 Great Depression & New Deal','7.4 World War II on the homefront'] },
+          { title: 'Unit 8: Period 8 (1945–1980)', lectures: ['8.1 Cold War strategies','8.2 Civil Rights Movement','8.3 Social movements of the 60s','8.4 Vietnam & detente'] },
+          { title: 'Unit 9: Period 9 (1980–Present)', lectures: ['9.1 Reaganomics & conservatism','9.2 End of the Cold War','9.3 Globalization','9.4 Modern debates'] }
+        ]
+      },
+      {
+        id: 'apworld',
+        name: 'AP World History: Modern',
+        description: 'Examine global developments from 1200 CE onward with focus on themes, processes, and continuities.',
+        units: [
+          { title: 'Unit 1: The Global Tapestry (1200–1450)', lectures: ['1.1 Developments in East Asia','1.2 Dar al-Islam','1.3 South & Southeast Asia','1.4 The Americas & Africa'] },
+          { title: 'Unit 2: Networks of Exchange (1200–1450)', lectures: ['2.1 Silk Roads','2.2 Mongol Empire','2.3 Indian Ocean trade','2.4 Trans-Saharan routes'] },
+          { title: 'Unit 3: Land-Based Empires (1450–1750)', lectures: ['3.1 Gunpowder empires','3.2 Administration & legitimacy','3.3 Belief systems','3.4 Comparison of empires'] },
+          { title: 'Unit 4: Transoceanic Interconnections (1450–1750)', lectures: ['4.1 Maritime exploration','4.2 Columbian Exchange','4.3 Labor systems','4.4 State building in the Americas'] },
+          { title: 'Unit 5: Revolutions (1750–1900)', lectures: ['5.1 Enlightenment ideas','5.2 Atlantic revolutions','5.3 Industrialization begins','5.4 Economic industrialization'] },
+          { title: 'Unit 6: Consequences of Industrialization (1750–1900)', lectures: ['6.1 Imperialism','6.2 State expansion','6.3 Indigenous responses','6.4 Global economic development'] },
+          { title: 'Unit 7: Global Conflict (1900–Present)', lectures: ['7.1 Causes of World War I','7.2 Interwar instability','7.3 World War II theaters','7.4 Mass atrocities & genocide'] },
+          { title: 'Unit 8: Cold War & Decolonization (1900–Present)', lectures: ['8.1 Cold War rivalries','8.2 Effects of the Cold War','8.3 Spread of communism','8.4 Independence movements'] },
+          { title: 'Unit 9: Globalization (1900–Present)', lectures: ['9.1 Advances in technology','9.2 Environmental change','9.3 Economic globalization','9.4 Debates over modernity'] }
+        ]
+      },
+      {
+        id: 'apes',
+        name: 'AP Environmental Science',
+        description: 'Integrate ecology, energy, and policy to analyze environmental problems and propose solutions.',
+        units: [
+          { title: 'Unit 1: Ecosystems', lectures: ['1.1 Ecosystems introduction','1.2 Terrestrial biomes','1.3 Aquatic biomes','1.4 Ecosystem interactions'] },
+          { title: 'Unit 2: Biodiversity', lectures: ['2.1 Biodiversity basics','2.2 Island biogeography','2.3 Population ecology','2.4 Ecological succession'] },
+          { title: 'Unit 3: Populations', lectures: ['3.1 Species interactions','3.2 Human populations','3.3 Demographic transition','3.4 Survivorship curves'] },
+          { title: 'Unit 4: Earth Systems & Resources', lectures: ['4.1 Plate tectonics','4.2 Soil formation','4.3 Atmosphere & circulation','4.4 Climate patterns'] },
+          { title: 'Unit 5: Land & Water Use', lectures: ['5.1 Agriculture','5.2 Forestry & rangelands','5.3 Mining impacts','5.4 Urbanization'] },
+          { title: 'Unit 6: Energy Resources', lectures: ['6.1 Renewable vs. nonrenewable','6.2 Fossil fuels','6.3 Nuclear energy','6.4 Renewable technologies'] },
+          { title: 'Unit 7: Atmospheric Pollution', lectures: ['7.1 Air pollution types','7.2 Smog & acid deposition','7.3 Indoor air pollution','7.4 Pollution solutions'] },
+          { title: 'Unit 8: Aquatic & Terrestrial Pollution', lectures: ['8.1 Water pollution sources','8.2 Pollution impacts','8.3 Solid waste management','8.4 Pollution legislation'] },
+          { title: 'Unit 9: Global Change', lectures: ['9.1 Climate change evidence','9.2 Greenhouse gases','9.3 Human impacts','9.4 Mitigation strategies'] }
+        ]
+      },
+      {
+        id: 'aphug',
+        name: 'AP Human Geography',
+        description: 'Analyze spatial patterns that shape human societies, culture, and economic systems.',
+        units: [
+          { title: 'Unit 1: Thinking Geographically', lectures: ['1.1 Tools of geography','1.2 Spatial concepts','1.3 Data visualization','1.4 Scale & flows'] },
+          { title: 'Unit 2: Population & Migration', lectures: ['2.1 Population distribution','2.2 Fertility & mortality','2.3 Demographic transition','2.4 Migration processes'] },
+          { title: 'Unit 3: Cultural Patterns & Processes', lectures: ['3.1 Culture & geography','3.2 Language & religion','3.3 Cultural landscapes','3.4 Diffusion of culture'] },
+          { title: 'Unit 4: Political Patterns & Processes', lectures: ['4.1 Political organization of space','4.2 Electoral geography','4.3 Supranationalism','4.4 Devolution & challenges'] },
+          { title: 'Unit 5: Agriculture & Rural Land Use', lectures: ['5.1 Agricultural origins','5.2 Agricultural revolutions','5.3 Rural land use models','5.4 The Green Revolution'] },
+          { title: 'Unit 6: Cities & Urban Land Use', lectures: ['6.1 Urban development','6.2 Models of cities','6.3 Urban challenges','6.4 Sustainability strategies'] },
+          { title: 'Unit 7: Industrial & Economic Development', lectures: ['7.1 Economic sectors','7.2 Development measures','7.3 Industry & services','7.4 Globalization impacts'] }
+        ]
+      },
+      {
+        id: 'appsych',
+        name: 'AP Psychology',
+        description: 'Explore human behavior through research methods, biology, cognition, and mental processes.',
+        units: [
+          { title: 'Unit 1: Scientific Foundations', lectures: ['1.1 Psychology’s history','1.2 Research methods','1.3 Ethics & statistics','1.4 Experimental design'] },
+          { title: 'Unit 2: Biological Bases of Behavior', lectures: ['2.1 Neurons & neurotransmission','2.2 The brain','2.3 The endocrine system','2.4 Genetics & behavior'] },
+          { title: 'Unit 3: Sensation & Perception', lectures: ['3.1 Principles of sensation','3.2 Vision','3.3 Hearing & other senses','3.4 Perception & Gestalt'] },
+          { title: 'Unit 4: Learning', lectures: ['4.1 Classical conditioning','4.2 Operant conditioning','4.3 Observational learning','4.4 Applications of learning'] },
+          { title: 'Unit 5: Cognitive Psychology', lectures: ['5.1 Memory','5.2 Forgetting','5.3 Cognition & problem solving','5.4 Language development'] },
+          { title: 'Unit 6: Developmental Psychology', lectures: ['6.1 Lifespan development','6.2 Cognitive development','6.3 Moral development','6.4 Adolescent development'] },
+          { title: 'Unit 7: Motivation, Emotion, & Personality', lectures: ['7.1 Motivation theories','7.2 Stress & health','7.3 Emotion theories','7.4 Personality perspectives'] },
+          { title: 'Unit 8: Clinical Psychology', lectures: ['8.1 Psychological disorders','8.2 Treatment modalities','8.3 Evaluating therapy','8.4 Cultural considerations'] },
+          { title: 'Unit 9: Social Psychology', lectures: ['9.1 Attribution theory','9.2 Attitudes & persuasion','9.3 Group dynamics','9.4 Altruism & conflict'] }
+        ]
+      }
+    ];
+
+    const courseGrid = document.getElementById('course-grid');
+    const detailSection = document.getElementById('course-detail');
+    const courseNameEl = document.getElementById('course-name');
+    const courseDescriptionEl = document.getElementById('course-description');
+    const notesContentEl = document.getElementById('notes-content');
+    const practiceOptionsEl = document.getElementById('practice-options');
+    const backToCoursesBtn = document.getElementById('back-to-courses');
+    const yearEl = document.getElementById('year');
+
+    let currentCourse = null;
+
+    yearEl.textContent = new Date().getFullYear();
+
+    courses.forEach(course => {
+      const card = document.createElement('article');
+      card.className = 'course-card';
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.dataset.courseId = course.id;
+
+      const title = document.createElement('h2');
+      title.textContent = course.name;
+      const description = document.createElement('p');
+      description.textContent = course.description;
+
+      card.append(title, description);
+      courseGrid.appendChild(card);
+
+      card.addEventListener('click', () => selectCourse(course.id));
+      card.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          selectCourse(course.id);
+        }
+      });
+    });
+
+    backToCoursesBtn.addEventListener('click', () => {
+      detailSection.hidden = true;
+      currentCourse = null;
+      highlightSelectedCard();
+      document.getElementById('course-list').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    function selectCourse(courseId) {
+      const course = courses.find(item => item.id === courseId);
+      if (!course) return;
+      currentCourse = course;
+      highlightSelectedCard();
+      populateCourseDetail(course);
+      detailSection.hidden = false;
+      detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function highlightSelectedCard() {
+      const cards = courseGrid.querySelectorAll('.course-card');
+      cards.forEach(card => {
+        card.classList.toggle('active', currentCourse && card.dataset.courseId === currentCourse.id);
+      });
+    }
+
+    function populateCourseDetail(course) {
+      courseNameEl.textContent = course.name;
+      courseDescriptionEl.textContent = course.description;
+
+      notesContentEl.innerHTML = '';
+      course.units.forEach((unit, index) => {
+        const detailsEl = document.createElement('details');
+        detailsEl.open = index === 0;
+
+        const summary = document.createElement('summary');
+        summary.textContent = unit.title;
+
+        const lectureList = document.createElement('div');
+        lectureList.className = 'lecture-list';
+        unit.lectures.forEach(lecture => {
+          const item = document.createElement('div');
+          item.textContent = lecture;
+          lectureList.appendChild(item);
+        });
+
+        detailsEl.append(summary, lectureList);
+        notesContentEl.appendChild(detailsEl);
+      });
+
+      practiceOptionsEl.innerHTML = '';
+      const fullCourseCard = createPracticeCard('Whole course review', 'Mix questions across every unit to simulate the AP exam experience.', () => launchPractice(course.name, null));
+      practiceOptionsEl.appendChild(fullCourseCard);
+
+      course.units.forEach(unit => {
+        const card = createPracticeCard(unit.title, 'Target this unit for focused reinforcement.', () => launchPractice(course.name, unit.title));
+        practiceOptionsEl.appendChild(card);
+      });
+    }
+
+    function createPracticeCard(title, description, onClick) {
+      const card = document.createElement('div');
+      card.className = 'practice-card';
+
+      const heading = document.createElement('strong');
+      heading.textContent = title;
+      const body = document.createElement('p');
+      body.textContent = description;
+      const button = document.createElement('button');
+      button.className = 'btn primary';
+      button.type = 'button';
+      button.textContent = 'Prep quiz';
+      button.addEventListener('click', onClick);
+
+      card.append(heading, body, button);
+      return card;
+    }
+
+    function launchPractice(courseName, unitTitle) {
+      const promptLines = [
+        `Course: ${courseName}`,
+        unitTitle ? `Focus: ${unitTitle}` : 'Focus: All units',
+        '',
+        'Next step:',
+        '1. Gather a set of multiple-choice questions for this scope.',
+        '2. Paste them into the Practice Tests builder to generate a quiz.',
+        '3. Use explanations to connect back to the AP CED learning objectives.'
+      ];
+
+      const message = promptLines.join('\n');
+      if (confirm(`${message}\n\nOpen Practice Tests tool now?`)) {
+        window.location.href = 'study-helper-practice.html';
+      }
+    }
+  </script>
+</body>
+</html>
